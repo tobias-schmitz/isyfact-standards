@@ -44,7 +44,7 @@
         <jsoup.version>1.16.1</jsoup.version>
         <ApacheJMeter_core.version>2.13</ApacheJMeter_core.version>
         <wiremock-jre8.version>2.32.0</wiremock-jre8.version>
-        <dbunit.version>2.7.2</dbunit.version>
+        <dbunit.version>2.7.3</dbunit.version>
         <h2.version>2.1.210</h2.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <tika-core.version>1.28.5</tika-core.version>
