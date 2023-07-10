@@ -43,7 +43,7 @@
         <commons-validator.version>1.7</commons-validator.version>
         <jsoup.version>1.16.1</jsoup.version>
         <ApacheJMeter_core.version>2.13</ApacheJMeter_core.version>
-        <wiremock-jre8.version>2.32.0</wiremock-jre8.version>
+        <wiremock-jre8.version>2.35.0</wiremock-jre8.version>
         <dbunit.version>2.7.3</dbunit.version>
         <h2.version>2.2.220</h2.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
