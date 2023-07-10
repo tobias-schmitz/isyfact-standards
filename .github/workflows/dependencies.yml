@@ -7,10 +7,14 @@ on:
     branches:
       - master
 
+
+
 jobs:
   dependency-update:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
     steps:
       - name: 'Checkout Repository'
         uses: actions/checkout@v3
