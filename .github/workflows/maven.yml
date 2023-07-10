@@ -1,5 +1,4 @@
-name: Check Maven
-run-name: Run checks for PR ${{ github.event.pull_request.title }}
+name: Build Maven
 on:
   pull_request:
     branches:
@@ -28,7 +27,7 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
-    needs: [Compile]
+    needs: [ Compile ]
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
