@@ -1,0 +1,37 @@
+name: Dependencies
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+
+
+jobs:
+  dependency-update:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Update dependency graph
+        uses: advanced-security/maven-dependency-submission-action@v3.0.2
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v2
