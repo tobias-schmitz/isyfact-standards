@@ -10,7 +10,7 @@ on:
 jobs:
   dependency-update:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.ref == 'refs/heads/master'
     steps:
     - name: Update dependency graph
       uses: advanced-security/maven-dependency-submission-action@v3.0.2
