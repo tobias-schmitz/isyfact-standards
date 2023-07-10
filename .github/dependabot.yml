@@ -5,7 +5,7 @@ updates:
     schedule:
       # set to weekly after initial updates
       interval: "daily"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 25
     groups:
       spring-webflow:
         patterns:
