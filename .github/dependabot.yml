@@ -11,7 +11,8 @@ updates:
         patterns:
           - "org.springframework.webflow:spring-*"
       spring-boot:
-        patterns: "spring.framework.boot:spring-boot-*"
+        patterns: 
+          - "spring.framework.boot:spring-boot-*"
       jsf:
         patterns:
           - "com.sun.faces:jsf-*"
