@@ -3,12 +3,13 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - '**/pom.xml'
   push:
     branches:
       - master
-
-
-
+    paths:
+      - '**/pom.xml'
 jobs:
   dependency-update:
     runs-on: ubuntu-latest
