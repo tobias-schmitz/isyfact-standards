@@ -1,7 +1,13 @@
-name: Build Maven
+name: DependaBot
 on:
   pull_request:
-    type: opened
+    types: opened
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  repository-projects: write
 
 env:
   PR_URL: ${{github.event.pull_request.html_url}}
