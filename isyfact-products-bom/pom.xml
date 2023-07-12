@@ -36,7 +36,7 @@
         <orika-core.version>1.5.4</orika-core.version>
         <pojobuilder.version>4.3.0</pojobuilder.version>
         <xstream.version>1.4.18</xstream.version>
-        <opencsv.version>5.5.2</opencsv.version>
+        <opencsv.version>5.7.1</opencsv.version>
         <guava.version>32.0.0-jre</guava.version>
         <commons-cli.version>1.5.0</commons-cli.version>
         <commons-net.version>3.9.0</commons-net.version>
