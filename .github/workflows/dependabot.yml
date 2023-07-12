@@ -1,0 +1,36 @@
+name: Build Maven
+on:
+  pull_request:
+    type: opened
+
+env:
+  PR_URL: ${{github.event.pull_request.html_url}}
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          alert-lookup: true
+      - name: Add a labels
+        run: |
+          [[ ${{ steps.metadata.outputs.update-type == 'version-update:semver-major' }} ]] && gh pr edit "$PR_URL" --add-label "major"
+          [[ ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' }} ]] && gh pr edit "$PR_URL" --add-label "minor"
+          [[ ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }} ]] && gh pr edit "$PR_URL" --add-label "patch"
+          [[ ${{ steps.metadata.outputs.alert-state == 'OPEN' }} ]] && gh pr edit "$PR_URL" --add-label "security"
+          [[ ${{ steps.metadata.outputs.alert-state == 'OPEN' }} ]] && gh pr edit "$PR_URL" --add-label "${{ steps.metadata.outputs.cvvss }}"
+      - name: Approve a PR
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          [[ ${{ steps.metadata.outputs.alert-state }} -gt 0.9 ]] && gh pr review --approve "$PR_URL"
+      - name: Enable auto-merge for Dependabot PRs
+        if: ${{ steps.metadata.outputs.alert-state == 'OPEN' }} && steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: gh pr merge --auto --merge "$PR_URL"
