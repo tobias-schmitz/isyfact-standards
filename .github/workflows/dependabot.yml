@@ -11,6 +11,7 @@ permissions:
 
 env:
   PR_URL: ${{github.event.pull_request.html_url}}
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
   dependabot:
@@ -23,22 +24,23 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           alert-lookup: true
-      - name: Add a labels
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Add a major label
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-major' }}
+        run: gh pr edit "$PR_URL" --add-label "major"
+      - name: Add a minor label
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' }}
+        run: gh pr edit "$PR_URL" --add-label "minor"
+      - name: Add a patch label
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+        run: gh pr edit "$PR_URL" --add-label "patch"
+      - name: Add security labels
+        if: ${{ steps.metadata.outputs.alert-state == 'OPEN' }}
         run: |
-          [[ ${{ steps.metadata.outputs.update-type == 'version-update:semver-major' }} ]] && gh pr edit "$PR_URL" --add-label "major"
-          [[ ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' }} ]] && gh pr edit "$PR_URL" --add-label "minor"
-          [[ ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }} ]] && gh pr edit "$PR_URL" --add-label "patch"
-          [[ ${{ steps.metadata.outputs.alert-state == 'OPEN' }} ]] && gh pr edit "$PR_URL" --add-label "security"
-          [[ ${{ steps.metadata.outputs.alert-state == 'OPEN' }} ]] && gh pr edit "$PR_URL" --add-label "${{ steps.metadata.outputs.cvvss }}"
+          gh pr edit "$PR_URL" --add-label "security"
+          gh pr edit "$PR_URL" --add-label "${{ steps.metadata.outputs.cvvss }}"
       - name: Approve a PR
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: |
-          [[ ${{ steps.metadata.outputs.compatibility-score }} -gt 0.9 ]] && gh pr review --approve "$PR_URL"
+        if: $(echo "0.9 <= ${{ steps.metadata.outputs.compatibility-score }} | bc) == 1
+        run: gh pr review --approve "$PR_URL"
       - name: Enable auto-merge for Dependabot PRs
         if: ${{ steps.metadata.outputs.alert-state == 'OPEN' }} && steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: gh pr merge --auto --merge "$PR_URL"
