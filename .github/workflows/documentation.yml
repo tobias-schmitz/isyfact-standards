@@ -29,4 +29,5 @@ jobs:
   Test:
     runs-on: ubuntu-latest
     steps:
-      - echo "Nothing to test"
+      - name: Test
+        run: echo "Nothing to test"
