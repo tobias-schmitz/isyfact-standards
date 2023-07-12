@@ -25,7 +25,7 @@ jobs:
       - name: Build Documentation
         continue-on-error: true
         working-directory: isyfact-standards-doc
-        run: mvn compile $MAVEN_CLI_OPTS -Dcheckstyle.skip -pl isy-documentation
+        run: mvn compile $MAVEN_CLI_OPTS -Dcheckstyle.skip
   Test:
     runs-on: ubuntu-latest
     steps:
