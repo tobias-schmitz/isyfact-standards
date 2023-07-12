@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          [[ ${{ steps.metadata.outputs.alert-state }} -gt 0.9 ]] && gh pr review --approve "$PR_URL"
+          [[ ${{ steps.metadata.outputs.compatibility-score }} -gt 0.9 ]] && gh pr review --approve "$PR_URL"
       - name: Enable auto-merge for Dependabot PRs
         if: ${{ steps.metadata.outputs.alert-state == 'OPEN' }} && steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
         env:
