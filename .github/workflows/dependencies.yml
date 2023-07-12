@@ -10,6 +10,8 @@ on:
       - master
     paths:
       - '**/pom.xml'
+  on: workflow_dispatch
+
 jobs:
   dependency-update:
     runs-on: ubuntu-latest
