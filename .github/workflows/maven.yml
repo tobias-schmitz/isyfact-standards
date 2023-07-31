@@ -11,5 +11,5 @@ on:
 env:
   MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
 jobs:
-  call-maven-check:
+  Maven:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template-maven.yml@master

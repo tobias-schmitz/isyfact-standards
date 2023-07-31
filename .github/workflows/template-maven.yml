@@ -1,4 +1,4 @@
-name: Check Maven
+name: Template Maven
 on:
   workflow_call:
     inputs:
