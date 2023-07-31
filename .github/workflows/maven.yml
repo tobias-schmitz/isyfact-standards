@@ -1,0 +1,17 @@
+name: Build Maven
+on:
+  pull_request:
+    branches:
+      - release/2.x
+    paths-ignore:
+      - 'isyfact-standards-doc'
+  push:
+    branches:
+      - release/2.x
+env:
+  MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
+jobs:
+  Maven:
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/maven.yml@master
+    with:
+      jdk-version: 8
