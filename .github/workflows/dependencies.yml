@@ -22,32 +22,26 @@ on:
         default: 17
 
 env:
-  MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
   JDK_VERSION: ${{ inputs.jdk-version || 17 }}
 
 jobs:
-  dependency-update:
+  dependency-check:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
     permissions:
       contents: write
     steps:
       - name: 'Checkout Repository'
         uses: actions/checkout@v3
       - name: Set up JDK ${{ env.JDK_VERSION }}
+        if: github.event_name == 'push'
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.JDK_VERSION }}
           distribution: temurin
           cache: maven
       - name: Update dependency graph
+        if: github.event_name == 'push'
         uses: advanced-security/maven-dependency-submission-action@v3.0.2
-
-  dependency-review:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: 'Checkout Repository'
-        uses: actions/checkout@v3
       - name: 'Dependency Review'
+        if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v3
