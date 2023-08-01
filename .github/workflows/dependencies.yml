@@ -3,28 +3,41 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - '**/pom.xml'
   push:
     branches:
       - master
-    paths:
-      - '**/pom.xml'
   workflow_dispatch:
+    inputs:
+      jdk-version:
+        description: 'Version of jdk that is used.'
+        required: false
+        type: number
+        default: 17
+  workflow_call:
+    inputs:
+      jdk-version:
+        description: 'Version of jdk that is used.'
+        required: false
+        type: number
+        default: 17
+
+env:
+  MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
+  JDK_VERSION: ${{ inputs.jdk-version || 17 }}
 
 jobs:
   dependency-update:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.event_name == 'push'
     permissions:
       contents: write
     steps:
       - name: 'Checkout Repository'
         uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK ${{ env.JDK_VERSION }}
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: ${{ env.JDK_VERSION }}
           distribution: temurin
           cache: maven
       - name: Update dependency graph
