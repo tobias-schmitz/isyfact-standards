@@ -96,4 +96,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Target Folder
-          path: ${{ github.workspace }}/**/target/
+          path: ${{ github.workspace }}/**/target/isy-logging
