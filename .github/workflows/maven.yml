@@ -25,6 +25,8 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'isyfact-standards-doc'
 env:
   MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
   JDK_VERSION: ${{ inputs.jdk-version || 17 }}

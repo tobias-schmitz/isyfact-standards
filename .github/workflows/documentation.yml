@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'isyfact-standards-doc'
 env:
   MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
 
