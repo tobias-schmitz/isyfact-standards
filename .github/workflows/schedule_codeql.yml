@@ -1,15 +1,8 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [ "master", "release/2.x" ]
-    paths:
-      - '**/src/**'
-  pull_request:
-    branches: [ "master", "release/2.x" ]
-    paths:
-      - '**/src/**'
-
+  schedule:
+    - cron: '25 13 * * 1'
 jobs:
   analyze:
     name: Analyze
@@ -24,17 +17,19 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'java' ]
+        branch: [ 'master', 'release/2.x' ]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        ref: ${{ matrix.branch }}
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
         queries: security-and-quality
-
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
 
