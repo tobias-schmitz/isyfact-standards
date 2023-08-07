@@ -15,3 +15,4 @@ jobs:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/maven.yml@master
     with:
       jdk-version: 8
+      checkout-lfs: true
