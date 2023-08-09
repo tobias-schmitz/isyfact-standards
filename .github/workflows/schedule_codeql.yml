@@ -2,7 +2,7 @@ name: "CodeQL"
 
 on:
   schedule:
-    - cron: '25 13 * * 1'
+    - cron: '35 8 * * 3'
 jobs:
   analyze:
     name: Analyze
@@ -28,8 +28,10 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
+        config-file: ./.github/codeql-config.yml
         languages: ${{ matrix.language }}
         queries: security-and-quality
+
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
 
