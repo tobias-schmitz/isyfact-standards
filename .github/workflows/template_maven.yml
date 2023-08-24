@@ -22,7 +22,8 @@ on:
         required: false
         type: string
     secrets:
-      SONAR_TOKEN:
+      sonar-token:
+        description: 'Token to publish analysis result on sonar'
         required: false
 
 env:
@@ -142,10 +143,10 @@ jobs:
           name: Quality Reports
       - name: Sonar Scan
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.sonar-token }}
         run: >
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }}
-          -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dmaven.javadoc.skip
+          -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dmaven.javadoc.skip -Denforcer.skip
           -Dsonar.organization=ts-test -Dsonar.projectKey=tobias-schmitz_isyfact-standards 
           -Dsonar.host.url=https://sonarcloud.io 
           verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar
