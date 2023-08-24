@@ -105,12 +105,19 @@ jobs:
         run: >
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=$${{ inputs.version }} 
           -Dcheckstyle.skip -Denforcer.skip -Dtidy.skip compile spotbugs:check
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Quality Reports
+          path: |
+            ${{ github.workspace }}/**/target/checkstyle-result.xml
+             ${{ github.workspace }}/**/target/spotbugs*.xml     
 
   SonarScan:
     runs-on: ubuntu-latest
     # run also , if test job fails
     if: ${{ !cancelled() }}
-    needs: [Test]
+    needs: [Test, CodeQuality]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -126,6 +133,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: Test Reports
+      - name: Download Quality Reports
+        uses: actions/download-artifact@v3
+        with:
+          name: Quality Reports
       - name: Sonar Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
