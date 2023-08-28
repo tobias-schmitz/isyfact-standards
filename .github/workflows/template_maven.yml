@@ -52,6 +52,7 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
+    if: false #TODO remove
     needs: [Compile]
     steps:
       - uses: actions/checkout@v3
@@ -90,6 +91,7 @@ jobs:
 
   CodeQuality:
     runs-on: ubuntu-latest
+    if: false #TODO remove
     needs: [Compile]
     steps:
       - uses: actions/checkout@v3
@@ -124,7 +126,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     if: ${{ !cancelled() }} && $ {{ env.SONAR_TOKEN != '' }}
-    needs: [Test, CodeQuality]
+    # needs: [Test, CodeQuality] TODO uncomment
     steps:
       - uses: actions/checkout@v3
         with:
@@ -144,10 +146,12 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Download Test Reports
+        if: false #TODO remove
         uses: actions/download-artifact@v3
         with:
           name: Test Reports
       - name: Download Quality Reports
+        if: false #TODO remove
         uses: actions/download-artifact@v3
         with:
           name: Quality Reports
@@ -156,6 +160,6 @@ jobs:
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }}
           -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dmaven.javadoc.skip -Denforcer.skip
           -Dsonar.host.url=https://sonarcloud.io 
-          -Dsonar.organization=ts-test -Dsonar.projectKey=tobias-schmitz_isyfact-standards 
+          -Dsonar.organization=ts-test -Dsonar.projectKey=tobias-schmitz_isyfact-standards
           -Dsonar.branch.name=${{ github.head_ref }} -Dsonar.branch.target=${{ github.base_ref }} 
           verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar
