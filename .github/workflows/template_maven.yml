@@ -22,7 +22,7 @@ on:
         required: false
         type: string
     secrets:
-      sonar-token:
+      SONAR_TOKEN:
         description: 'Token to publish analysis result on sonar'
         required: false
 
@@ -120,12 +120,17 @@ jobs:
   SonarScan:
     runs-on: ubuntu-latest
     # run also , if test job fails
-    if: ${{ !cancelled() }}
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    if: ${{ !cancelled() }} && $ {{ env.SONAR_TOKEN != '' }}
     needs: [Test, CodeQuality]
     steps:
       - uses: actions/checkout@v3
         with:
           lfs: ${{ inputs.checkout-lfs }}
+          # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - name: Set up JDK 17
         # Sonar Plugin requires Java 17 or higher
         uses: actions/setup-java@v3
@@ -133,6 +138,11 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
+      - uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Download Test Reports
         uses: actions/download-artifact@v3
         with:
@@ -142,11 +152,10 @@ jobs:
         with:
           name: Quality Reports
       - name: Sonar Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.sonar-token }}
         run: >
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }}
           -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dmaven.javadoc.skip -Denforcer.skip
-          -Dsonar.organization=ts-test -Dsonar.projectKey=tobias-schmitz_isyfact-standards 
           -Dsonar.host.url=https://sonarcloud.io 
+          -Dsonar.organization=ts-test -Dsonar.projectKey=tobias-schmitz_isyfact-standards 
+          -Dsonar.branch.name=${{ github.head_ref }} -Dsonar.branch.target=${{ github.base_ref }} 
           verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar

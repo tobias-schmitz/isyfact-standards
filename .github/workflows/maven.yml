@@ -17,5 +17,4 @@ jobs:
     with:
       jdk-version: 17
       version: '3.0.0-SNAPSHOT'
-    secrets:
-      sonar-token: ${{ secrets.SONAR_TOKEN }}
+    secrets: inherit
