@@ -22,7 +22,7 @@ on:
         required: false
         type: string
     secrets:
-      sonar-token:
+      SONAR_TOKEN:
         description: 'Token to publish analysis result on sonar'
         required: false
 
@@ -33,7 +33,8 @@ jobs:
   Compile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout project
+        uses: actions/checkout@v3
         with:
           lfs: ${{ inputs.checkout-lfs }}
       - name: Set up JDK ${{ inputs.jdk-version }}
@@ -44,7 +45,7 @@ jobs:
           cache: maven
       - name: Compile
         run: mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }} -Dcheckstyle.skip compile
-      - name: Upload Artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: Target Folder
@@ -54,7 +55,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [Compile]
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout project
+        uses: actions/checkout@v3
         with:
           lfs: ${{ inputs.checkout-lfs }}
       - name: Set up JDK ${{ inputs.jdk-version }}
@@ -63,9 +65,9 @@ jobs:
           java-version: ${{ inputs.jdk-version }}
           distribution: temurin
           cache: maven
-      - name: Test
+      - name: Run tests
         run: mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }} -Dcheckstyle.skip test
-      - name: Create Summary
+      - name: Create summary
         run: |
           echo "| Module | Total Coverage |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
@@ -80,7 +82,7 @@ jobs:
           done
           [[ $COUNTER -gt 0 ]] && TOTAL_COVERAGE=$((SUM/COUNTER)) || TOTAL_COVERAGE=0
           echo "| Overall | $TOTAL_COVERAGE % |" >> $GITHUB_STEP_SUMMARY
-      - name: Upload Report
+      - name: Upload Reports
         uses: actions/upload-artifact@v3
         with:
           name: Test Reports
@@ -92,7 +94,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [Compile]
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout project
+        uses: actions/checkout@v3
         with:
           lfs: ${{ inputs.checkout-lfs }}
       - name: Set up JDK ${{ inputs.jdk-version }}
@@ -101,15 +104,15 @@ jobs:
           java-version: ${{ inputs.jdk-version }}
           distribution: temurin
           cache: maven
-      - name: Checkstyle
+      - name: Run checkstyle
         run: >
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }} 
           compile checkstyle:checkstyle-aggregate
-      - name: Spotbugs
+      - name: Run spotbugs
         run: >
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=$${{ inputs.version }} 
           -Dcheckstyle.skip -Denforcer.skip -Dtidy.skip compile spotbugs:check
-      - name: Upload Report
+      - name: Upload Reports
         uses: actions/upload-artifact@v3
         with:
           name: Quality Reports
@@ -119,13 +122,16 @@ jobs:
 
   SonarScan:
     runs-on: ubuntu-latest
-    # run also , if test job fails
-    if: ${{ !cancelled() }}
+    # run also, if test or code quality jobs fail; skip dependabot pr as dependabot has separate secrets
+    if: vars.SONAR_PROJECT_KEY && !cancelled() && github.actor != 'dependabot[bot]'
     needs: [Test, CodeQuality]
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout project
+        uses: actions/checkout@v3
         with:
           lfs: ${{ inputs.checkout-lfs }}
+          # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - name: Set up JDK 17
         # Sonar Plugin requires Java 17 or higher
         uses: actions/setup-java@v3
@@ -133,6 +139,12 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
+      - name: Cache Sonar
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Download Test Reports
         uses: actions/download-artifact@v3
         with:
@@ -143,10 +155,11 @@ jobs:
           name: Quality Reports
       - name: Sonar Scan
         env:
-          SONAR_TOKEN: ${{ secrets.sonar-token }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }}
           -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dmaven.javadoc.skip -Denforcer.skip
-          -Dsonar.organization=ts-test -Dsonar.projectKey=tobias-schmitz_isyfact-standards 
-          -Dsonar.host.url=https://sonarcloud.io 
+          -Dsonar.host.url=${{ vars.SONAR_HOST_URL }}
+          -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
           verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar
