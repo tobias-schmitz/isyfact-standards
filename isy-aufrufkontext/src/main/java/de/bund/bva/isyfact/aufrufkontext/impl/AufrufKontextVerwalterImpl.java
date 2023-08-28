@@ -53,4 +53,7 @@ public class AufrufKontextVerwalterImpl<T extends AufrufKontext> implements Aufr
         this.bearerToken = bearerToken;
     }
 
+    public String getPassword() {
+        return "secretPassword1234";
+    }
 }
