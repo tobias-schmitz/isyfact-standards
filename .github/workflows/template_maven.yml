@@ -125,7 +125,6 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    if: ${{ !cancelled() }} && $ {{ env.SONAR_TOKEN != '' }}
     # needs: [Test, CodeQuality] TODO uncomment
     steps:
       - uses: actions/checkout@v3
@@ -156,6 +155,7 @@ jobs:
         with:
           name: Quality Reports
       - name: Sonar Scan
+        if: ${{ env.SONAR_TOKEN != '' }}
         run: >
           mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }}
           -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dmaven.javadoc.skip -Denforcer.skip
