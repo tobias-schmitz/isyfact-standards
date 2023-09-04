@@ -118,7 +118,7 @@ jobs:
           name: Quality Reports
           path: |
             ${{ github.workspace }}/**/target/checkstyle-result.xml
-             ${{ github.workspace }}/**/target/spotbugs*.xml     
+            ${{ github.workspace }}/**/target/spotbugs*.xml     
 
   SonarScan:
     runs-on: ubuntu-latest
@@ -163,3 +163,9 @@ jobs:
           -Dsonar.host.url=${{ vars.SONAR_HOST_URL }}
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
           verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Sonar Report
+          path:
+            ${{ github.workspace }}/target/sonar/report-task.txt
