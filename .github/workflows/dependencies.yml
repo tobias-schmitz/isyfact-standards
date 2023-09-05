@@ -1,5 +1,13 @@
 name: Dependencies
 on:
+  pull_request:
+    branches:
+      - master
+      - release/2.x
+  push:
+    branches:
+      - master
+      - release/2.x
   workflow_dispatch:
     inputs:
       jdk-version:

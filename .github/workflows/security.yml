@@ -12,20 +12,22 @@ on:
 jobs:
   dependency-scan:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
       - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven-3-jdk-17@master
-        continue-on-error: true # To make sure that SARIF upload gets called
+        continue-on-error: true
         with:
-          command: monitor
-          args: --severity-threshold=low --maven-aggregate-project --target-reference=$GITHUB_REF
-        #- name: Upload result to GitHub Code Scanning
-        # uses: github/codeql-action/upload-sarif@v2
-        #  with:
-        #  sarif_file: snyk.sarif
+          command: test
+          args: --severity-threshold=low --sarif-file-output=snyk-dependencies.sarif --maven-aggregate-project --target-reference=$GITHUB_REF --dev
+      - name: Upload dependency scan result
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk-dependencies.sarif
 
   code-scan:
     runs-on: ubuntu-latest
@@ -37,11 +39,11 @@ jobs:
       - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven-3-jdk-17@master
-        continue-on-error: true # To make sure that SARIF upload gets called
+        continue-on-error: true
         with:
           command: code test
-          args: --severity-threshold=low --sarif-file-output=snyk.sarif --maven-aggregate-project --target-reference=$GITHUB_REF
-      - name: Upload result to GitHub Code Scanning
+          args: --severity-threshold=low --sarif-file-output=snyk-code.sarif --maven-aggregate-project --target-reference=$GITHUB_REF
+      - name: Upload code scan result
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: snyk.sarif
+          sarif_file: snyk-code.sarif

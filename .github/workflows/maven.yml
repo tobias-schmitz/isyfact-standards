@@ -13,9 +13,10 @@ on:
 
 jobs:
   Maven:
+    permissions:
+      security-events: write
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven.yml@master
     with:
       jdk-version: 17
       version: '3.0.0-SNAPSHOT'
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    secrets: inherit
