@@ -22,9 +22,10 @@ jobs:
         uses: snyk/actions/maven-3-jdk-17@master
         continue-on-error: true
         with:
-          command: test
-          args: --severity-threshold=low --sarif-file-output=snyk-dependencies.sarif --maven-aggregate-project --target-reference=$GITHUB_REF --dev
+          command: monitor
+          args: --severity-threshold=low --maven-aggregate-project --target-reference=$GITHUB_REF --dev
       - name: Upload dependency scan result
+        if: false
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk-dependencies.sarif
