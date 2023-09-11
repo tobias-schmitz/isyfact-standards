@@ -2,7 +2,6 @@ name: Release Maven
 on:
   release:
     types: [released]
-  workflow_call:
 
 env:
   MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
@@ -37,6 +36,7 @@ jobs:
 
   Deploy:
     needs: [Build, QualityGate]
+    environment: Release
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
       version: ${{ github.ref_name }}

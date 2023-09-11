@@ -45,11 +45,6 @@ jobs:
           cache: maven
       - name: Compile
         run: mvn $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -Drevision=${{ inputs.version }} -Dcheckstyle.skip compile
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: Target Folder
-          path: ${{ github.workspace }}/**/target/
 
   Test:
     runs-on: ubuntu-latest

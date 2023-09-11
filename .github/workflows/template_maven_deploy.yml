@@ -99,10 +99,10 @@ jobs:
           MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
         run: >
           mvn -DskipTests -Dspotbugs.skip -Dcheckstyle.skip  -DdeployAtEnd -Drevision=${{ inputs.version }}
-          $MAVEN_CLI_OPTS -P GPGsigning -P centralRelease cyclonedx:makeBom  cyclonedx:makeBom install
+          $MAVEN_CLI_OPTS -P GPGsigning cyclonedx:makeBom cyclonedx:makeBom deploy
       - name: Upload Package
         uses: actions/upload-artifact@v3
         with:
           name: Package
           path: |
-            ~/.m2/repository/de/bund/bva/isyfact/**/${{ inputs.version }}/*
+            /tmp/deploy/test/
