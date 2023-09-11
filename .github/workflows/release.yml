@@ -33,14 +33,25 @@ jobs:
           distribution: temurin
       - name: Validate project version
         run: |
-          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -Drevision=$GITHUB_REF_NAME)
+          PROJECT_VERSION=$(mvn -Dexpression=project.version -q -DforceStdout -Drevision=$GITHUB_REF_NAME help:evaluate)
           if [ ! "$PROJECT_VERSION" = "$GITHUB_REF_NAME" ]; then
             echo "ERROR tag with value $GITHUB_REF_NAME does not correspond to project version $PROJECT_VERSION"
             exit 1
           fi
+      - name: Check release existence
+        run: >
+          mvn $MAVEN_CLI_OPTS $MAVEN_OPTS
+          -Dexists.failIfExists=true
+          -Dexists.skipIfSnapshot=true
+          -Dexists.serverId=ossrh
+          -Dexists.snapshotServerId=ossrh
+          -Drevision=$GITHUB_REF_NAME
+          -Dcentraldeploy=true
+          org.honton.chas:exists-maven-plugin:0.7.0:remote
 
   Deploy:
     runs-on: ubuntu-latest
+    needs: [Validate]
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
