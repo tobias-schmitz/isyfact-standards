@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    target-branch: "release/2.x"
+    directory: "/"
+    schedule:
+      # set to weekly after initial updates
+      interval: "daily"
+    open-pull-requests-limit: 50
+    groups:
+      spring-webflow:
+        patterns:
+          - "org.springframework.webflow:spring-*"
+      spring-boot:
+        patterns: 
+          - "spring.framework.boot:spring-boot-*"
+      jsf:
+        patterns:
+          - "com.sun.faces:jsf-*"
+      resilience4j:
+        patterns:
+          - "io.github.resilience4j:resilience4j-*"
+      logback:
+        patterns:
+          - "ch.qos.logback:logback-*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "de.bund.bva.isyfact:*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
