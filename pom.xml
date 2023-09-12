@@ -780,12 +780,12 @@
                 <repository>
                     <id>repository</id>
                     <name>Repository</name>
-                    <url>${deploy-url-release}</url>
+                    <url>file:/tmp/deploy/test/</url>
                 </repository>
                 <snapshotRepository>
                     <id>repository</id>
                     <name>Repository</name>
-                    <url>${deploy-url-snapshot}</url>
+                    <url>file:/tmp/deploy/test/</url>
                 </snapshotRepository>
             </distributionManagement>
         </profile>
