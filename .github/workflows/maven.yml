@@ -2,16 +2,16 @@ name: Build Maven
 on:
   pull_request:
     branches:
-      - release/2.x
+      - 'release/**'
     paths-ignore:
       - 'isyfact-standards-doc'
   push:
     branches:
-      - release/2.x
+      - 'release/**'
 
 jobs:
   Maven:
-    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven.yml@master
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
     with:
       jdk-version: 8
     secrets:
