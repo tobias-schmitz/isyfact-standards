@@ -380,7 +380,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>3.11.0</version>
                 <configuration>
                     <source>${java.compile.version}</source>
                     <target>${java.compile.version}</target>

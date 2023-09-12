@@ -1,0 +1,16 @@
+name: Dependencies
+on:
+  pull_request:
+    branches:
+      - release/2.x
+  push:
+    branches:
+      - release/2.x
+
+jobs:
+  Dependencies:
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/dependencies.yml@master
+    permissions:
+      contents: write
+    with:
+      jdk-version: 8
