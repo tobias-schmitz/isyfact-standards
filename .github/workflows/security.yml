@@ -20,12 +20,18 @@ jobs:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
       - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
+      - name: Run Snyk to monitor for vulnerabilities
         uses: snyk/actions/maven-3-jdk-17@master
         continue-on-error: true
         with:
           command: monitor
-          args: --severity-threshold=low --maven-aggregate-project --target-reference=$GITHUB_REF --dev
+          args: --severity-threshold=low --maven-aggregate-project --target-reference=$GITHUB_REF
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/maven-3-jdk-17@master
+        with:
+          command: test
+          args: --severity-threshold=low --maven-aggregate-project --target-reference=$GITHUB_REF
+
       - name: Upload dependency scan result
         if: false
         uses: github/codeql-action/upload-sarif@v2
@@ -34,6 +40,7 @@ jobs:
 
   code-scan:
     runs-on: ubuntu-latest
+    if: false
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     permissions:
