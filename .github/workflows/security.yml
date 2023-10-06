@@ -9,6 +9,8 @@ on:
       - master
       - release/2.x
 
+  workflow_dispatch: 
+    
 jobs:
   dependency-scan:
     runs-on: ubuntu-latest
