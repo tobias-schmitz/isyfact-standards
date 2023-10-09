@@ -21,6 +21,7 @@ on:
         description: 'Version used for maven CI friendly versions'
         required: false
         type: string
+        default: '0.0.0-SNAPSHOT'
     secrets:
       SONAR_TOKEN:
         description: 'Token to publish analysis result on sonar'

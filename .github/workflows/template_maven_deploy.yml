@@ -99,7 +99,7 @@ jobs:
           MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
         run: >
           mvn -DskipTests -Dspotbugs.skip -Dcheckstyle.skip  -DdeployAtEnd -Drevision=${{ inputs.version }}
-          $MAVEN_CLI_OPTS -P GPGsigning cyclonedx:makeBom cyclonedx:makeBom deploy
+          $MAVEN_CLI_OPTS -P GPGsigning cyclonedx:makeBom deploy
       - name: Upload Package
         uses: actions/upload-artifact@v3
         with:
