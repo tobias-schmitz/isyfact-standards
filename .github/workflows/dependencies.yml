@@ -3,47 +3,31 @@ on:
   pull_request:
     branches:
       - master
-      - release/2.x
   push:
     branches:
       - master
-      - release/2.x
-  workflow_dispatch:
-    inputs:
-      jdk-version:
-        description: 'Version of jdk that is used.'
-        required: false
-        type: number
-        default: 17
-  workflow_call:
-    inputs:
-      jdk-version:
-        description: 'Version of jdk that is used.'
-        required: false
-        type: number
-        default: 17
-
-env:
-  JDK_VERSION: ${{ inputs.jdk-version || 17 }}
 
 jobs:
-  dependency-check:
+  Update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: 'Checkout Repository'
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Set up JDK ${{ env.JDK_VERSION }}
-        if: github.event_name == 'push'
+      - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          java-version: ${{ env.JDK_VERSION }}
+          java-version: 17
           distribution: temurin
           cache: maven
       - name: Update dependency graph
-        if: github.event_name == 'push'
-        uses: advanced-security/maven-dependency-submission-action@v3.0.2
-      - name: 'Dependency Review'
-        if: github.event_name == 'pull_request'
+        uses: advanced-security/maven-dependency-submission-action@v3
+
+  Review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Review dependencies
         uses: actions/dependency-review-action@v3
