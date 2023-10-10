@@ -28,6 +28,7 @@ jobs:
           java-version: 8
           distribution: temurin
           cache: maven
+
       - name: Run Snyk to monitor for vulnerabilities
         run: snyk monitor --maven-aggregate-project --target-reference=$GITHUB_REF --org=641ce6a1-f163-4237-93e3-e187464c5d18
 
