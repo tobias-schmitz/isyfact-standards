@@ -32,13 +32,14 @@ jobs:
       - name: "SonarCloud Quality Gate Status"
         run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
 
-  ScanDependencies:
+  DependencyScan:
     runs-on: ubuntu-latest
-    needs: [Build]
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Snyk
+      - name: Setup snyk
         uses: snyk/actions/setup@master
       - name: Setup JDK
         uses: actions/setup-java@v3
@@ -46,11 +47,11 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
-      - name: Run Snyk to test for vulnerabilities
-        run: snyk test --maven-aggregate-project --severity-threshold=high
+      - name: Test for vulnerabilities
+        run: snyk test --maven-aggregate-project --org=$SNYK_ORG_ID
 
   Deploy:
-    needs: [Build, QualityGate, ScanDependencies]
+    needs: [Build, QualityGate, DependencyScan]
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
       version: ${{ github.ref_name }}
@@ -59,3 +60,25 @@ jobs:
         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
         MAVEN_CENTRAL_USER_NAME: ''
         MAVEN_CENTRAL_TOKEN: ''
+
+  Monitor:
+    runs-on: ubuntu-latest
+    needs: [Deploy]
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup snyk
+        uses: snyk/actions/setup@master
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Create to dependency snapshot to monitor for vulnerabilities
+        run: >
+          snyk monitor 
+          --maven-aggregate-project 
+          --target-reference=${{ inputs.snyk-reference }} --org=${{ inputs.snyk-organization }}

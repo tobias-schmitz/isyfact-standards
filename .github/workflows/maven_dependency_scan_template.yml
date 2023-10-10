@@ -1,0 +1,68 @@
+name: Dependency Scan Template
+on:
+  workflow_call:
+    inputs:
+      jdk-version:
+        required: false
+        description: 'Version of jdk that is used.'
+        type: number
+        default: 17
+      checkout-lfs:
+          required: false
+          description: 'Checkout files from Git LFS'
+          type: boolean
+          default: false
+      snyk-organization:
+        required: false
+        description: 'Snyk organization ID'
+        type: string
+      snyk-reference:
+        required: true
+        description: 'Target reference for snyk project'
+        type: string
+
+
+    secrets:
+      SNYK_TOKEN:
+        required: true
+        description: 'Token to authenticate Snyk CLI'
+
+env:
+  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+jobs:
+
+  Monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup snyk
+        uses: snyk/actions/setup@master
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Create to dependency snapshot to monitor for vulnerabilities
+        run: > 
+          snyk monitor 
+          --maven-aggregate-project 
+          --target-reference=${{ inputs.snyk-reference }} --org=${{ inputs.snyk-organization }}
+
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup snyk
+        uses: snyk/actions/setup@master
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Test for vulnerabilities
+        run: snyk test --maven-aggregate-project --org=${{ inputs.snyk-organization }}
