@@ -168,19 +168,19 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>3.3.0</version>
                     <configuration>
-                        <!-- <configLocation>checkstyle.config.xml</configLocation> -->
+                         <configLocation>checkstyle.config.xml</configLocation>
                         <encoding>UTF-8</encoding>
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>true</failsOnError>
                         <linkXRef>false</linkXRef>
                     </configuration>
-                    <!-- <dependencies>
+                    <dependencies>
                          <dependency>
                              <groupId>de.bund.bva.isyfact</groupId>
                              <artifactId>isy-checkstyle-config</artifactId>
                              <version>0.1.0</version>
                          </dependency>
-                     </dependencies> -->
+                     </dependencies>
                     <executions>
                         <execution>
                             <id>validate</id>
@@ -337,7 +337,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>2.7.13</version>
+                    <version>2.7.14</version>
                     <executions>
                         <execution>
                             <id>build-info</id>
@@ -516,6 +516,15 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId> cyclonedx-maven-plugin</artifactId>
+                <version>2.7.9</version>
+                <configuration>
+                    <outputFormat>json</outputFormat>
+                    <outputName>${project.artifactId}-${project.version}-cyclonedx</outputName>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -743,6 +752,11 @@
                         <configuration>
                             <keyname>${gpg.keyname}</keyname>
                             <passphrase>${gpg.passphrase}</passphrase>
+                            <!-- Prevent gpg from using pinentry programs -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -782,12 +796,12 @@
                 <repository>
                     <id>repository</id>
                     <name>Repository</name>
-                    <url>${deploy-url-release}</url>
+                    <url>file:/tmp/deploy/test/</url>
                 </repository>
                 <snapshotRepository>
                     <id>repository</id>
                     <name>Repository</name>
-                    <url>${deploy-url-snapshot}</url>
+                    <url>file:/tmp/deploy/test/</url>
                 </snapshotRepository>
             </distributionManagement>
         </profile>

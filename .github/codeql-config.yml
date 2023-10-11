@@ -1,0 +1,4 @@
+paths-ignore:
+  - .github
+  - isyfact-standards-doc
+  - '**/*Test*.java'

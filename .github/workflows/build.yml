@@ -1,0 +1,22 @@
+name: Build Maven
+on:
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'isyfact-standards-doc'
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'isyfact-standards-doc'
+
+jobs:
+  Maven:
+    permissions:
+      security-events: write
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
+    with:
+      jdk-version: 17
+      version: '3.0.0-SNAPSHOT'
+    secrets: inherit

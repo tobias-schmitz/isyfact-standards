@@ -1,7 +1,9 @@
 name: DependaBot
 on:
   pull_request:
-    types: [opened, reopened]
+    branches:
+      - master
+      - 'release/**'
 
 permissions:
   contents: write
@@ -16,14 +18,15 @@ env:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
           alert-lookup: true
+          compat-lookup: true
+          github-token: ${{ secrets.DEPENDABOT_TOKEN }}
       - name: Add a major label
         if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-major' }}
         run: gh pr edit "$PR_URL" --add-label "major"
@@ -35,6 +38,7 @@ jobs:
         run: gh pr edit "$PR_URL" --add-label "patch"
       - name: Add security labels
         if: ${{ steps.metadata.outputs.alert-state == 'OPEN' }}
+        continue-on-error: true
         run: |
           gh pr edit "$PR_URL" --add-label "security"
           gh pr edit "$PR_URL" --add-label "${{ steps.metadata.outputs.cvvss }}"
