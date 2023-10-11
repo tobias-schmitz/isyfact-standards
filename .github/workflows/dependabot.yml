@@ -1,7 +1,6 @@
 name: DependaBot
 on:
   pull_request:
-    types: [opened, reopened]
 
 permissions:
   contents: write
@@ -35,6 +34,7 @@ jobs:
         run: gh pr edit "$PR_URL" --add-label "patch"
       - name: Add security labels
         if: ${{ steps.metadata.outputs.alert-state == 'OPEN' }}
+        continue-on-error: true
         run: |
           gh pr edit "$PR_URL" --add-label "security"
           gh pr edit "$PR_URL" --add-label "${{ steps.metadata.outputs.cvvss }}"
