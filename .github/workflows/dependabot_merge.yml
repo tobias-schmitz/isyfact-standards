@@ -8,7 +8,7 @@ on:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.pull_request.user.login == 'dependabot[bot]' && steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.pull_request.user.login == 'dependabot[bot]' }}
 
     env:
       PR_URL: ${{github.event.pull_request.html_url}}
@@ -23,8 +23,10 @@ jobs:
           compat-lookup: true
           github-token: ${{ secrets.DEPENDABOT_TOKEN }}
       - name: Approve a PR
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
         run: gh pr review --approve "$PR_URL"
       - name: Approve % enable auto-merge for PR
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
         run: |
           gh pr review --approve "$PR_URL"
 
