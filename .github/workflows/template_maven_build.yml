@@ -116,6 +116,7 @@ jobs:
         with:
           name: Test Reports
       - name: Sonar Scan
+        continue-on-error: true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -124,6 +125,7 @@ jobs:
           -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dmaven.javadoc.skip -Denforcer.skip
           -Dsonar.host.url=${{ vars.SONAR_HOST_URL }}
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+          -Dsonar.qualitygate.wait=true
           verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar
       - name: Upload Meta Data
         uses: actions/upload-artifact@v3

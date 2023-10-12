@@ -2,6 +2,11 @@ name: Deploy Maven Template
 on:
   workflow_call:
     inputs:
+      jdk-version:
+        description: 'Version of jdk that is used.'
+        required: false
+        type: number
+        default: 17
       version:
         description: 'Version used for maven CI friendly versions'
         required: true
@@ -41,10 +46,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: false
-      - name: Set up JDK 17
+      - name: Set up JDK ${{ inputs.jdk-version }}
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: ${{ inputs.jdk-version }}
           distribution: temurin
           server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
           server-username: MAVEN_USERNAME # env variable for username in deploy
@@ -80,10 +85,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: false
-      - name: Set up JDK 17
+      - name: Set up JDK ${{ inputs.jdk-version }}
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: ${{ inputs.jdk-version }}
           distribution: temurin
           # arguments for generated settings.xml, see https://github.com/actions/setup-java/blob/v3.11.0/docs/advanced-usage.md#publishing-using-apache-maven
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
