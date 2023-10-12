@@ -26,18 +26,17 @@ jobs:
       PR_URL: ${{ github.event.pull_request.html_url }}
       GH_TOKEN: ${{ secrets.DEPENDABOT_TOKEN }}
 
-      steps:
-        - name: Get Dependabot PR metadata
-          id: metadata
-          uses: dependabot/fetch-metadata@v1
-          with:
-            alert-lookup: true
-            compat-lookup: true
-            github-token: ${{ secrets.DEPENDABOT_TOKEN }}
-        - name: Approve PR
-          if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
-          run: gh pr review --approve "$PR_URL"
-        - name: Enable auto-merge for PR
-          if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
-          run: |
-            gh pr review --approve "$PR_URL"
+    steps:
+      - name: Get Dependabot PR metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          alert-lookup: true
+          compat-lookup: true
+          github-token: ${{ secrets.DEPENDABOT_TOKEN }}
+      - name: Approve PR
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+        run: gh pr review --approve "$PR_URL"
+      - name: Enable auto-merge for PR
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+        run: gh pr review --approve "$PR_URL"
