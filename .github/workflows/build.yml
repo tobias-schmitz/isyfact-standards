@@ -38,7 +38,7 @@ jobs:
           alert-lookup: true
           compat-lookup: true
           github-token: ${{ secrets.DEPENDABOT_TOKEN }}
-      - name: Approve a PR
+      - name: Approve PR
         if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
         run: gh pr review --approve "$PR_URL"
       - name: Enable auto-merge for PR
