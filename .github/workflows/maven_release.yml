@@ -9,28 +9,35 @@ jobs:
     with:
       version: ${{ github.ref_name }}
       jdk-version: 8
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    # Do not pass Sonar Token as secret to skip sonar job as SonarScan maven plugin does not support GitHub release event
 
   QualityGate:
     runs-on: ubuntu-latest
     needs: [Build]
-    continue-on-error: true
+    env:
+      COMMIT_SHA: ${{ github.sha }}
     steps:
-      - name: Download Sonar Scan Meta Data
-        uses: actions/download-artifact@v3
-        with:
-          name: Sonar Meta Data
       - name: SonarQube Quality Gate Check
-        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
-        with:
-          scanMetadataReportFile: report-task.txt
-          timeout-minutes: 2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ANALYSIS_ID=curl '$SONAR_HOST_URL/api/project_analyses/search?project=$SONAR_PROJECT_KEY&category=QUALITY_GATE' | jq ".analyses[]|select(.revision==\"$COMMIT_SHA\").key"
+          
+          if [[ -z $ANALYSIS_ID ]]; then
+            echo "No Sonar Scan result found for commit $COMMIT_SHA"
+            exit 1
+          fi
+          
+          QG_STATUS=$(curl '$SONAR_HOST_URL/api/qualitygates/project_status?analysisId=$ANALYSIS_ID') | jq ".projectStatus.status"
+          
+          if [[ $QG_STATUS == "OK" ]]; then
+            echo "Quality Gate passed"
+            exit 0
+          elif [[ $QG_STATUS == "ERROR" ]]; then
+            echo "Quality Gate failed"
+            exit 1
+          fi
 
   Deploy:
-    needs: [Build]
+    needs: [QualityGate]
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
       version: ${{ github.ref_name }}
