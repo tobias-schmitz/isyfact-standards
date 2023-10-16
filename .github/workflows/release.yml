@@ -79,7 +79,6 @@ jobs:
   Monitor:
     runs-on: ubuntu-latest
     needs: [Deploy]
-    if: false
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
@@ -97,4 +96,4 @@ jobs:
         run: >
           snyk monitor 
           --maven-aggregate-project 
-          --target-reference=${{ inputs.snyk-reference }} --org=${{ inputs.snyk-organization }}
+          --target-reference=${{ github.ref_name }} --org=$SNYK_ORG_ID
