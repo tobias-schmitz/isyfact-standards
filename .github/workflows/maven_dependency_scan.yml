@@ -11,7 +11,7 @@ jobs:
   Dependencies:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/maven_dependency_scan_template.yml@master
     with:
-      snyk-reference: $GITHUB_REF
+      snyk-reference: $GITHUB_REF_NAME
       snyk-organization: $SNYK_ORG_ID
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
