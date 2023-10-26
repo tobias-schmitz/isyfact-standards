@@ -1,4 +1,5 @@
 name: Validate Commits
+
 on:
   pull_request:
     branches:
@@ -7,8 +8,9 @@ on:
     types: [opened, edited, reopened, synchronize]
   push:
     branches:
-      - main
+      - master
       - 'release/*'
+
 jobs:
   CheckCommits1:
     name: GS Commit Message Checker
@@ -23,7 +25,7 @@ jobs:
           error: 'The pull requests contains some commits that do not follow conventional commits https://www.conventionalcommits.org/en/v1.0.0/'
           excludeTitle: 'true'
           excludeDescription: 'true'
-          includeAllCommitMessages: 'true'
+          checkAllCommitMessages: 'true'
           accessToken: ${{ secrets.GITHUB_TOKEN }}
 
   CheckCommits2:
