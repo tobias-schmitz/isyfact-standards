@@ -11,17 +11,25 @@ on:
         description: 'Version used for maven CI friendly versions'
         required: true
         type: string
+      maven-opts:
+        required: false
+        type: string
+        default: ''
+      deploy-server-id:
+        required: true
+        type: string
+        description: ''
     secrets:
       MAVEN_GPG_PRIVATE_KEY:
-        required: true
+        required: false
         description: 'Private GPG key to sign artifacts with'
       MAVEN_GPG_PASSPHRASE:
-        required: true
+        required: false
         description: 'Passphrase for private gpg key'
-      MAVEN_CENTRAL_USER_NAME:
+      DEPLOY_SERVER_USER_NAME:
         required: true
         description: 'User name for maven central for deployment'
-      MAVEN_CENTRAL_TOKEN:
+      DEPLOY_SERVER_TOKEN:
         required: true
         description: 'Token for maven central deployment'
 
@@ -34,12 +42,13 @@ jobs:
     # environment: Release
     steps:
       - name: Validate tagged version
+        if: github.ref_type == 'tag'
         run: |
           RE_SEMVER="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$"
-        
+
           if [[ ! "${{ inputs.version }}" =~ $RE_SEMVER ]]; then
             echo "ERROR tag with value ${{ inputs.version }} is an invalid release or semantic version"
-            echo "Release requires a current tag containing a valid SemVer 2.0.0. without pre-release version"
+            echo "Release requires a tag containing a valid SemVer 2.0.0 without pre-release version"
             exit 1
           fi
       - name: Checkout project
@@ -51,29 +60,42 @@ jobs:
         with:
           java-version: ${{ inputs.jdk-version }}
           distribution: temurin
-          server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
+          server-id: ${{ inputs.deploy-server-id }} # Value of the distributionManagement/repository/id field of the pom.xml
           server-username: MAVEN_USERNAME # env variable for username in deploy
           server-password: MAVEN_CENTRAL_TOKEN # env variable for token in deploy
-      - name: Validate project version
-        run: |
+      - name: Get build version
+        id: getVersion
+        run:  |
           PROJECT_VERSION=$(mvn -Dexpression=project.version -q -DforceStdout -Drevision=${{ inputs.version }} help:evaluate)
-          if [ ! "$PROJECT_VERSION" = "${{ inputs.version }}" ]; then
-            echo "ERROR tag with value ${{ inputs.version }} does not correspond to project version $PROJECT_VERSION"
+          echo "Project version is $PROJECT_VERSION"
+          echo "project-version=$PROJECT_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Validate tag and build versions
+        if: github.ref_type == 'tag'
+        run: |
+          if [ ! "${{ steps.getVersion.outputs.project-version }}" = "${{ inputs.version }}" ]; then
+            echo "ERROR: given version with value ${{ inputs.version }} does not correspond to build version $PROJECT_VERSION"
+            exit 1
+          fi
+      - name: Check for snapshot version
+        if: github.ref_type != 'tag'
+        run: |
+          if [ ! "${{ steps.getVersion.outputs.project-version }}" =~ "-SNAPSHOT"]; then
+            echo "ERROR: Trying to deploy untagged version as stable release"
             exit 1
           fi
       - name: Check release existence
         continue-on-error: true
+        if: github.ref_type != 'tag'
         env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USER_NAME }}
-          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.DEPLOY_SERVER_USER_NAME }}
+          MAVEN_CENTRAL_TOKEN: ${{ secrets.DEPLOY_SERVER_TOKEN }}
         run: >
-          mvn $MAVEN_CLI_OPTS $MAVEN_OPTS
+          mvn $MAVEN_CLI_OPTS
           -Dexists.failIfExists=true
           -Dexists.skipIfSnapshot=true
-          -Dexists.serverId=ossrh
-          -Dexists.snapshotServerId=ossrh
+          -Dexists.serverId=${{ inputs.deploy-server-id }}
           -Drevision=${{ inputs.version }}
-          -Dcentraldeploy=true
+          -Dexists.repository= ${{ inputs.deploy-server-url }}
           org.honton.chas:exists-maven-plugin:0.7.0:remote
 
   Deploy:
@@ -93,18 +115,24 @@ jobs:
           # arguments for generated settings.xml, see https://github.com/actions/setup-java/blob/v3.11.0/docs/advanced-usage.md#publishing-using-apache-maven
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
           gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
-          server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
-          server-username: MAVEN_USERNAME # env variable for username in deploy
-          server-password: MAVEN_CENTRAL_TOKEN # env variable for token in deploy
+          server-id: ${{ inputs.deploy-server-id }} # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: DEPLOY_SERVER_USERNAME # env variable for username in deploy
+          server-password: DEPLOY_SERVER_TOKEN # env variable for token in deploy
+          settings-path: ${{ github.workspace}}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Maven Settings
+          path: ${{ github.workspace }}/settings.xml
 
       - name: Package, Sign & Deploy
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USER_NAME }}
-          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          DEPLOY_SERVER_USERNAME: ${{ secrets.DEPLOY_SERVER_USER_NAME }}
+          DEPLOY_SERVER_TOKEN: ${{ secrets.DEPLOY_SERVER_TOKEN }}
         run: >
           mvn -DskipTests -Dspotbugs.skip -Dcheckstyle.skip  -DdeployAtEnd -Drevision=${{ inputs.version }}
-          $MAVEN_CLI_OPTS -P GPGsigning cyclonedx:makeBom deploy
+          $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} -s settings.xml cyclonedx:makeBom deploy
       - name: Upload Package
         uses: actions/upload-artifact@v3
         with:

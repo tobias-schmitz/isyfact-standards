@@ -13,10 +13,22 @@ on:
 
 jobs:
   Maven:
+    if: false
     permissions:
       security-events: write
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
     with:
-      jdk-version: 17
-      version: '3.0.0-SNAPSHOT'
+      version: '0.0.0-SNAPSHOT'
     secrets: inherit
+
+  Snapshot:
+    if: github.event_name == 'push'
+    #needs: [Maven]
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
+    with:
+      version: '0.0.0-SNAPSHOT'
+      maven-opts: '-DaltDeploymentRepository=github::https://maven.pkg.github.com/tobias-schmitz/isyfact-standards'
+      deploy-server-id: github
+    secrets:
+      DEPLOY_SERVER_USER_NAME: ${{ github.actor }}
+      DEPLOY_SERVER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
