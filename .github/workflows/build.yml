@@ -23,10 +23,10 @@ jobs:
 
   Snapshot:
     if: github.event_name == 'push'
-    #needs: [Maven]
+   # needs: [Maven]
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
-      version: '0.0.0'
+      version: '3.0.0-SNAPSHOT'
       maven-opts: '-DaltDeploymentRepository=github::https://maven.pkg.github.com/tobias-schmitz/isyfact-standards'
       deploy-server-id: github
     secrets:
