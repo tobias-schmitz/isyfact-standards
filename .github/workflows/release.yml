@@ -72,6 +72,7 @@ jobs:
     needs: [Build, QualityGate] #, DependencyScan]
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
+      environment: Release
       version: ${{ github.ref_name }}
       deploy-server-id: ossrh
       sbom: true

@@ -35,6 +35,11 @@ on:
         required: false
         type: boolean
         default: false
+      environment:
+        description: 'Github environment with secrets and variables'
+        required: false
+        type: string
+        default: ''
     secrets:
       GPG_PRIVATE_KEY:
         required: false
@@ -75,9 +80,6 @@ jobs:
         with:
           java-version: ${{ inputs.jdk-version }}
           distribution: temurin
-          server-id: ${{ inputs.deploy-server-id }} # Value of the distributionManagement/repository/id field of the pom.xml
-          server-username: DEPLOY_SERVER_USERNAME # env variable for username in deploy
-          server-password: DEPLOY_SERVER_TOKEN # env variable for token in deploy
       - name: Get build version
         id: getVersion
         run:  |
@@ -98,22 +100,10 @@ jobs:
             echo "ERROR: Trying to deploy untagged version as stable release"
             exit 1
           fi
-      - name: Check release existence
-        if: github.ref_type != 'tag'
-        env:
-          DEPLOY_SERVER_USERNAME: ${{ secrets.DEPLOY_SERVER_USER_NAME }}
-          DEPLOY_SERVER_TOKEN: ${{ secrets.DEPLOY_SERVER_TOKEN }}
-        run: >
-          mvn $MAVEN_CLI_OPTS
-          -Dexists.failIfExists=true
-          -Dexists.skipIfSnapshot=true
-          -Dexists.serverId=${{ inputs.deploy-server-id }}
-          -Drevision=${{ inputs.version }}
-          -Dexists.repository= ${{ inputs.deploy-server-url }}
-          org.honton.chas:exists-maven-plugin:0.7.0:remote
 
   Deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     needs: [Validate]
     steps:
       - name: Checkout project
