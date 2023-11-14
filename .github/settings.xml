@@ -36,6 +36,7 @@
                 <github-user>${env.GITHUB_ACTOR}</github-user>
                 <github-password>${env.GH_PACKAGE_TOKEN}</github-password>
 
+                <!-- URLs used in distribution management of pom -->
                 <deploy-url-release>${env.DEPLOYURL_RELEASE}</deploy-url-release>
                 <deploy-url-snapshot>${env.DEPLOYURL_SNAPSHOT}</deploy-url-snapshot>
             </properties>

@@ -29,7 +29,6 @@ jobs:
     with:
       version: '3.0.0-SNAPSHOT'
       maven-opts: '-s ./.github/settings.xml '
-      deploy-server-id: repository
       deploy-url-snapshot: 'https://maven.pkg.github.com/tobias-schmitz/isyfact-standards'
     secrets:
       DEPLOY_SERVER_USER_NAME: ${{ github.actor }}

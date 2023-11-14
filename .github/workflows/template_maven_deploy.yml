@@ -22,9 +22,10 @@ on:
         type: boolean
         default: false
       deploy-server-id:
-        required: true
+        required: false
         type: string
         description: 'Reference to repository that is used for deployment'
+        default: 'repository'
       deploy-url-release:
         required: false
         type: string
