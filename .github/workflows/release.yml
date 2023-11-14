@@ -74,6 +74,7 @@ jobs:
     with:
       environment: Release
       version: ${{ github.ref_name }}
+      maven-opts: '-s ./.github/settings.xml'
       deploy-server-id: ossrh
       sbom: true
       sign: true
