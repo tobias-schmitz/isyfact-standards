@@ -126,10 +126,6 @@ jobs:
           # arguments for generated settings.xml
           # see https://github.com/actions/setup-java/blob/v3.11.0/docs/advanced-usage.md#publishing-using-apache-maven
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} # Value of the GPG private key to import
-          gpg-passphrase: GPG_PASSPHRASE # env variable for GPG private key passphrase
-          server-id: ${{ inputs.deploy-server-id }} # Value of the distributionManagement/repository/id field of the pom.xml
-          server-username: DEPLOY_SERVER_USERNAME # env variable for username in deploy
-          server-password: DEPLOY_SERVER_TOKEN # env variable for token in deploy
       - name: Setup variables
         run: |
           echo "CYCLONEDX_SBOM_OPTS=$([ ${{ inputs.sbom }} == "true" ] && echo "cyclonedx:makeBom" || echo "")" >> $GITHUB_ENV
