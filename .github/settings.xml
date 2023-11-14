@@ -22,6 +22,10 @@
     <profiles>
         <profile>
             <id>github</id>
+            <properties>
+                <deploy-url-release>${env.DEPLOYURL_RELEASE}</deploy-url-release>
+                <deploy-url-snapshot>${env.DEPLOYURL_SNAPSHOT}</deploy-url-snapshot>
+            </properties>
             <repositories>
                 <repository>
                     <id>if-github</id>

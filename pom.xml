@@ -796,12 +796,12 @@
                 <repository>
                     <id>repository</id>
                     <name>Repository</name>
-                    <url>file:/tmp/deploy/test/</url>
+                    <url>${deploy-url-release}</url>
                 </repository>
                 <snapshotRepository>
                     <id>repository</id>
                     <name>Repository</name>
-                    <url>file:/tmp/deploy/test/</url>
+                    <url>${deploy-url-snapshot}</url>
                 </snapshotRepository>
             </distributionManagement>
         </profile>

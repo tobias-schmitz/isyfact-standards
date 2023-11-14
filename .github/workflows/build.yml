@@ -28,8 +28,9 @@ jobs:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
       version: '3.0.0-SNAPSHOT'
-      maven-opts: '-s ./.github/settings.xml -DaltDeploymentRepository=github::https://maven.pkg.github.com/tobias-schmitz/isyfact-standards'
-      deploy-server-id: github
+      maven-opts: '-s ./.github/settings.xml '
+      deploy-server-id: repository
+      deploy-url-snapshot: 'https://maven.pkg.github.com/tobias-schmitz/isyfact-standards'
     secrets:
       DEPLOY_SERVER_USER_NAME: ${{ github.actor }}
       DEPLOY_SERVER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
