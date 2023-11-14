@@ -25,6 +25,14 @@ on:
         required: true
         type: string
         description: 'Reference to repository that is used for deployment'
+      deploy-url-release:
+        required: false
+        type: string
+        description: 'URL to deploy releases to'
+      deploy-url-snapshot:
+        required: false
+        type: string
+        description: 'URL to deploy snapshots to'
       sbom:
         description: 'Create SBOM with cycloneDx format'
         required: false
@@ -133,6 +141,8 @@ jobs:
           DEPLOY_SERVER_USERNAME: ${{ secrets.DEPLOY_SERVER_USER_NAME }}
           DEPLOY_SERVER_TOKEN: ${{ secrets.DEPLOY_SERVER_TOKEN }}
           DEPLOY_SERVER_ID: ${{ inputs.deploy-server-id }}
+          DEPLOYURL_RELEASE: ${{ inputs.deploy-url-release }}
+          DEPLOYURL_SNAPSHOT: ${{ inputs.deploy-url-snapshot }}
         run: >
           mvn -DskipTests -Dspotbugs.skip -Dcheckstyle.skip  -DdeployAtEnd -Drevision=${{ inputs.version }}
           $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} $GPG_SIGN_OPTS $CYCLONEDX_SBOM_OPTS deploy
