@@ -131,6 +131,7 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           DEPLOY_SERVER_USERNAME: ${{ secrets.DEPLOY_SERVER_USER_NAME }}
           DEPLOY_SERVER_TOKEN: ${{ secrets.DEPLOY_SERVER_TOKEN }}
+          DEPLOY_SERVER_ID: ${{ inputs.deploy-server-id }}
         run: >
           mvn -DskipTests -Dspotbugs.skip -Dcheckstyle.skip  -DdeployAtEnd -Drevision=${{ inputs.version }}
           $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} $GPG_SIGN_OPTS $CYCLONEDX_SBOM_OPTS deploy

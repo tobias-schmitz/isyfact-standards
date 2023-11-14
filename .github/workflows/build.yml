@@ -19,6 +19,7 @@ jobs:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
     with:
       version: '0.0.0-SNAPSHOT'
+      maven-opts: '-s ./.github/settings.xml'
     secrets: inherit
 
   Snapshot:
@@ -27,7 +28,7 @@ jobs:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
       version: '3.0.0-SNAPSHOT'
-      maven-opts: '-DaltDeploymentRepository=github::https://maven.pkg.github.com/tobias-schmitz/isyfact-standards'
+      maven-opts: '-s ./.github/settings.xml -DaltDeploymentRepository=github::https://maven.pkg.github.com/tobias-schmitz/isyfact-standards'
       deploy-server-id: github
     secrets:
       DEPLOY_SERVER_USER_NAME: ${{ github.actor }}
