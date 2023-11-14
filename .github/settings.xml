@@ -4,9 +4,19 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <servers>
         <server>
-            <id>if-github</id>
-            <username>${env.GITHUB_ACTOR}</username>
-            <password>${env.GH_PACKAGE_TOKEN}</password>
+            <id>isyfact-standards</id>
+            <username>${github-user}</username>
+            <password>${github-password}}</password>
+        </server>
+        <server>
+            <id>isyfact-bom</id>
+            <username>${github-user}</username>
+            <password>${github-password}}</password>
+        </server>
+        <server>
+            <id>isy-web</id>
+            <username>${github-user}</username>
+            <password>${github-password}}</password>
         </server>
         <server>
             <id>${env.DEPLOY_SERVER_ID}</id>
@@ -23,12 +33,16 @@
         <profile>
             <id>github</id>
             <properties>
+                <github-user>${env.GITHUB_ACTOR}</github-user>
+                <github-password>${env.GH_PACKAGE_TOKEN}</github-password>
+
                 <deploy-url-release>${env.DEPLOYURL_RELEASE}</deploy-url-release>
                 <deploy-url-snapshot>${env.DEPLOYURL_SNAPSHOT}</deploy-url-snapshot>
             </properties>
+
             <repositories>
                 <repository>
-                    <id>if-github</id>
+                    <id>isyfact-standards</id>
                     <name>IsyFact Standards</name>
                     <url>https://maven.pkg.github.com/IsyFact/isyfact-standards</url>
                     <snapshots>
@@ -36,7 +50,7 @@
                     </snapshots>
                 </repository>
                 <repository>
-                    <id>if-github</id>
+                    <id>isyfact-bom</id>
                     <name>IsyFact BOM</name>
                     <url>https://maven.pkg.github.com/IsyFact/isyfact-bom</url>
                     <snapshots>
@@ -44,12 +58,12 @@
                     </snapshots>
                 </repository>
                 <repository>
-                    <id>if-github</id>
+                    <id>isy-web</id>
                     <name>Isy Web</name>
                     <url>https://maven.pkg.github.com/IsyFact/isy-web</url>
-                    <releases>
+                    <snapshots>
                         <enabled>true</enabled>
-                    </releases>
+                    </snapshots>
                 </repository>
             </repositories>
         </profile>
