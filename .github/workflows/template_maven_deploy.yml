@@ -62,9 +62,13 @@ on:
       DEPLOY_SERVER_TOKEN:
         required: false
         description: 'Token for maven central deployment'
+      GH_PACKAGE_TOKEN:
+        description: 'Token for github packages'
+        required: false
 
 env:
   MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
+  PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
 
 jobs:
   Validate:
