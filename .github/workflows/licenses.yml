@@ -27,3 +27,22 @@ jobs:
             evaluator,
             reporter,
             upload-results
+
+  rat:
+    runs-on: ubuntu-latest
+    env:
+      MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - run: mvn $MAVEN_CLI_OPTS apache-rat:check
+        continue-on-error: true
+      - uses: actions/upload-artifact@v3
+        with:
+          path: '**/rat.txt'
