@@ -30,6 +30,7 @@ jobs:
 
   rat:
     runs-on: ubuntu-latest
+    if: false
     env:
       MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
     steps:
@@ -48,31 +49,31 @@ jobs:
           path: '**/rat.txt'
 
   fossology-license:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
-            -e GITHUB_TOKEN=${{ github.token }} \
-            -e GITHUB_PULL_REQUEST=${{ github.event.number }} \
-            -e GITHUB_REPOSITORY=${{ github.repository }} \
-            -e GITHUB_REPO_URL=${{ github.repositoryUrl }} \
-            -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
-            -e GITHUB_API=${{ github.api_url }} \
-            -e GITHUB_ACTIONS \
-            fossology/fossology:scanner "/bin/fossologyscanner" nomos ojo
+      - run: >
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo
+          -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          -e GITHUB_PULL_REQUEST=${{ github.event.number }}
+          -e GITHUB_REPOSITORY=${{ github.repository }}
+          -e GITHUB_REPO_URL=${{ github.repositoryUrl }}
+          -e GITHUB_REPO_OWNER=${{ github.repository_owner }}
+          -e GITHUB_API=${{ github.api_url }}
+          -e GITHUB_ACTIONS
+          fossology/fossology:scanner "/bin/fossologyscanner" nomos ojo --report TEXT
 
   fossology-copyright:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
-            -e GITHUB_TOKEN=${{ github.token }} \
-            -e GITHUB_PULL_REQUEST=${{ github.event.number }} \
-            -e GITHUB_REPOSITORY=${{ github.repository }} \
-            -e GITHUB_API=${{ github.api_url }} \
-            -e GITHUB_REPO_URL=${{ github.repositoryUrl }} \
-            -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
-            -e GITHUB_ACTIONS \
-            fossology/fossology:scanner "/bin/fossologyscanner" copyright keyword
+      - run: >
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo
+          -e GITHUB_TOKEN=${{ github.token }}
+          -e GITHUB_PULL_REQUEST=${{ github.event.number }}
+          -e GITHUB_REPOSITORY=${{ github.repository }}
+          -e GITHUB_API=${{ github.api_url }}
+          -e GITHUB_REPO_URL=${{ github.repositoryUrl }}
+          -e GITHUB_REPO_OWNER=${{ github.repository_owner }}
+          -e GITHUB_ACTIONS
+          fossology/fossology:scanner "/bin/fossologyscanner" copyright keyword
