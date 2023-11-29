@@ -46,3 +46,33 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: '**/rat.txt'
+
+  fossology-license:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
+            -e GITHUB_TOKEN=${{ github.token }} \
+            -e GITHUB_PULL_REQUEST=${{ github.event.number }} \
+            -e GITHUB_REPOSITORY=${{ github.repository }} \
+            -e GITHUB_REPO_URL=${{ github.repositoryUrl }} \
+            -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
+            -e GITHUB_API=${{ github.api_url }} \
+            -e GITHUB_ACTIONS \
+            fossology/fossology:scanner "/bin/fossologyscanner" nomos ojo
+
+  fossology-copyright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
+            -e GITHUB_TOKEN=${{ github.token }} \
+            -e GITHUB_PULL_REQUEST=${{ github.event.number }} \
+            -e GITHUB_REPOSITORY=${{ github.repository }} \
+            -e GITHUB_API=${{ github.api_url }} \
+            -e GITHUB_REPO_URL=${{ github.repositoryUrl }} \
+            -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
+            -e GITHUB_ACTIONS \
+            fossology/fossology:scanner "/bin/fossologyscanner" copyright keyword
