@@ -77,3 +77,23 @@ jobs:
           -e GITHUB_REPO_OWNER=${{ github.repository_owner }}
           -e GITHUB_ACTIONS
           fossology/fossology:scanner "/bin/fossologyscanner" repo copyright keyword --report TEXT
+
+  scancode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install ScanCode
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install scancode-toolkit
+      - name: Run ScanCode
+        run: scancode -clpeui -q -n 2 --ignore "*.java" --ignore "**/isyfact-standards-doc/**" --html isyfact-standards.html --json-pp isyfact-standards.json .
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ScanCode Report
+          path: |
+            isyfact-standards.json
+            isyfact-standards.html
