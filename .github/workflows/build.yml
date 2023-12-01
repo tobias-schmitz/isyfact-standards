@@ -30,6 +30,10 @@ jobs:
       version: '3.0.0-SNAPSHOT'
       maven-opts: '-s ./.github/settings.xml '
       deploy-url-snapshot: https://maven.pkg.github.com/${{ github.repository }}
+      sign: true
+      sbom: true
     secrets:
+      GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       DEPLOY_SERVER_USER_NAME: ${{ github.actor }}
       DEPLOY_SERVER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
