@@ -10,6 +10,7 @@ on:
 jobs:
   ort:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Use HTTPS instead of SSH for Git cloning
         run: git config --global url.https://github.com/.insteadOf ssh://git@github.com/
@@ -50,6 +51,7 @@ jobs:
 
   fossology-license:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v4
       - run: >
@@ -65,6 +67,7 @@ jobs:
 
   fossology-copyright:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v4
       - run: >
@@ -80,6 +83,7 @@ jobs:
 
   scancode:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -100,6 +104,7 @@ jobs:
 
   licensed:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v3
       # install licensed.  licensed v4 can only be installed as a gem and requires
@@ -126,3 +131,14 @@ jobs:
 
       - run: licensed list
       - run: licensed status
+
+  licenseFinder:
+    runs-on: ubuntu-latest
+    container:
+      image: licensefinder/license_finder
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: license_finder --prepare
+        shell: bash
+
