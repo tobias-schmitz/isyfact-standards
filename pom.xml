@@ -537,20 +537,9 @@
                 <version>2.0.0</version>
             </plugin>
             <plugin>
-                <groupId>com.github.jinnovations</groupId>
-                <artifactId>attribution-maven-plugin</artifactId>
-                <version>0.9.9</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-attribution-file</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outputFile>${project.build.directory}/attribution.xml</outputFile>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.3.0</version>
             </plugin>
         </plugins>
     </build>
