@@ -10,7 +10,6 @@ on:
 jobs:
   ort:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - name: Use HTTPS instead of SSH for Git cloning
         run: git config --global url.https://github.com/.insteadOf ssh://git@github.com/
@@ -19,8 +18,8 @@ jobs:
       - name: Run GitHub Action for ORT
         uses: oss-review-toolkit/ort-ci-github-action@main
         with:
+          report-formats: 'WebApp,PdfTemplate,PlainTextTemplate -O PlainTextTemplate=template.id=NOTICE_SUMMARY'
           fail-on: 'violations'
-          report-formats: 'WebApp,PdfTemplate'
           run: >
             cache-dependencies,
             metadata-labels,
