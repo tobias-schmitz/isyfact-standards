@@ -13,7 +13,6 @@ on:
 
 jobs:
   Maven:
-    if: false
     permissions:
       security-events: write
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
@@ -24,7 +23,7 @@ jobs:
 
   Snapshot:
     if: github.event_name == 'push'
-   # needs: [Maven]
+    needs: [Maven]
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
       version: '3.0.0-SNAPSHOT'
