@@ -16,13 +16,17 @@ jobs:
   Version:
     runs-on: ubuntu-latest
     outputs:
-      next-version: ${{ steps.version.outputs.version }}
+      next-version: ${{ steps.version.outputs.next }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - id: version
-        uses: thenativeweb/get-next-version@main
+        uses: ietf-tools/semver-action@v1.5.2
+        with:
+          noVersionBumpBehavior: current
+          token: ${{ github.token }}
+          branch: ${{ github.base_ref }}
 
   Maven:
     needs: [Version]
