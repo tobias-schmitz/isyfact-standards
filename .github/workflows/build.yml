@@ -5,6 +5,7 @@ on:
       - master
     paths-ignore:
       - 'isyfact-standards-doc'
+
   push:
     branches:
       - master
