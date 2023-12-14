@@ -19,8 +19,13 @@ jobs:
         with:
           fetch-depth: 0
       - id: version
-        uses: semantic-release-action/next-release-version@v4.0.10
-      - run: echo "next-version=${{steps.version.new-release-version}}" >> "$GITHUB_OUTPUT"
+        uses: SOLIDSoftworks/semver-tags@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          default-version: '0.0.0'
+          prerelease: 'SNAPSHOT'
+          create-release: false
+      - run: echo "next-version=${{steps.version.semantic-version}}" >> "$GITHUB_OUTPUT"
 
   Maven:
     needs: [Version]
