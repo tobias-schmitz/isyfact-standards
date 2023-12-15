@@ -16,18 +16,18 @@ jobs:
   Version:
     runs-on: ubuntu-latest
     outputs:
-      next-version: ${{ steps.version.outputs.version }}
+      next-version: ${{ steps.version.outputs.next }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - id: version
-        uses: zwaldowski/semver-release-action@v3
+        uses: ietf-tools/semver-action@v1.5.2
         with:
-          github_token: ${{ github.token }}
-          dry_run: true
-          bump: prerelease
-          per_branch: true
+          token: ${{ github.token }}
+          branch: ${{ github.ref_name }}
+          skipInvalidTags: true
+          noVersionBumpBehavior: current
 
   Maven:
     needs: [Version]
