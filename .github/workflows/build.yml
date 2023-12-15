@@ -16,18 +16,20 @@ jobs:
   Version:
     runs-on: ubuntu-latest
     outputs:
-      next-version: ${{ steps.version.outputs.next }}
+      next-version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - id: version
-        uses: ietf-tools/semver-action@v1.5.2
+        uses: PaulHatch/semantic-version@v5.3.0
         with:
-          token: ${{ github.token }}
-          branch: ${{ github.ref_name }}
-          skipInvalidTags: true
-          noVersionBumpBehavior: current
+          version_from_branch: true
+          tag_prefix: ""
+          major_pattern: "/BREAKING/"
+          minor_pattern: "/feat/"
+          search_commit_body: true
+
 
   Maven:
     needs: [Version]
