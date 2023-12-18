@@ -5,6 +5,7 @@ on:
       - master
     paths-ignore:
       - 'isyfact-standards-doc'
+
   push:
     branches:
       - master
@@ -12,22 +13,26 @@ on:
       - 'isyfact-standards-doc'
 
 jobs:
+  Version:
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
+
   Maven:
-    if: false
+    needs: [Version]
     permissions:
       security-events: write
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
     with:
-      version: '0.0.0-SNAPSHOT'
+      version: ${{ needs.Version.outputs.next-version }}
       maven-opts: '-s ./.github/settings.xml'
+      sonar-skip: true
     secrets: inherit
 
   Snapshot:
-    if: github.event_name == 'push'
-   # needs: [Maven]
+    if: false #github.event_name == 'push'
+    needs: [Maven]
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
-      version: '3.0.0-SNAPSHOT'
+      version: ${{ needs.Version.outputs.next-version }}
       maven-opts: '-s ./.github/settings.xml '
       deploy-url-snapshot: https://maven.pkg.github.com/${{ github.repository }}
       sign: true
