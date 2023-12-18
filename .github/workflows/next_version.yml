@@ -11,7 +11,6 @@ on:
         description: 'Computed snapshot version'
         value: ${{ jobs.Next.outputs.next-version }}
 
-
 jobs:
   Next:
     runs-on: ubuntu-latest
