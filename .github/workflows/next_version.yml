@@ -1,4 +1,4 @@
-name: Version
+name: Next Version
 on:
   workflow_call:
     inputs:
@@ -6,11 +6,10 @@ on:
         description: 'If set, this version is used with Snapshot suffix.'
         type: string
         required: false
-        default: ''
     outputs:
       next-version:
         description: 'Computed snapshot version'
-        value: ${{ jobs.next.outputs.version }}
+        value: ${{ jobs.Next.outputs.next-version }}
 
 jobs:
   Next:
@@ -24,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: semantic-version
-        if: ${{ ! env.NEXT_VERSION }}
+        if: "!${{ env.NEXT_VERSION }}"
         uses: PaulHatch/semantic-version@v5.3.0
         with:
           version_from_branch: true
@@ -33,6 +32,7 @@ jobs:
           minor_pattern: "/feat/"
           search_commit_body: true
       - id: next-version
+        name: Set next version
         run: |
           echo "version=${NEXT_VERSION:-${{ steps.semantic-version.outputs.version }}}-SNAPSHOT" >> "$GITHUB_OUTPUT"
-          echo "Computed ${{ steps.next-version.outputs.version }} as version."
+      - run:  echo "Computed and set ${{ steps.next-version.outputs.version }} as version."
