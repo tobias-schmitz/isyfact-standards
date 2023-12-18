@@ -15,8 +15,6 @@ on:
 jobs:
   Version:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/next_version.yml@master
-    with:
-      next-version: 3.0.0
 
   Maven:
     needs: [Version]
