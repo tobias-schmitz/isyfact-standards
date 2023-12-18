@@ -14,30 +14,7 @@ on:
 
 jobs:
   Version:
-    runs-on: ubuntu-latest
-    env:
-      NEXT_VERSION: 3.0.0
-    outputs:
-      next-version: ${{ steps.next-version.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - id: semantic-version
-        if: ${{ ! env.NEXT_VERSION }}
-        uses: PaulHatch/semantic-version@v5.3.0
-        with:
-          version_from_branch: true
-          tag_prefix: ""
-          major_pattern: "/BREAKING/"
-          minor_pattern: "/feat/"
-          search_commit_body: true
-      - id: next-version
-        run: |
-          NEXT_VERSION=$NEXT_VERSION ||${{ steps.version.outputs.version }}-SNAPSHOT
-          echo "version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
-
-
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
 
   Maven:
     needs: [Version]
@@ -55,7 +32,7 @@ jobs:
     needs: [Maven]
     uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
     with:
-      version: '3.0.0-SNAPSHOT'
+      version: ${{ needs.Version.outputs.next-version }}
       maven-opts: '-s ./.github/settings.xml '
       deploy-url-snapshot: https://maven.pkg.github.com/${{ github.repository }}
       sign: true
