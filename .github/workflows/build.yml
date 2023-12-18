@@ -15,12 +15,8 @@ on:
 jobs:
   Version:
     uses: tobias-schmitz/isyfact-standards/.github/workflows/next_version.yml@master
-
-  Test:
-    needs: Version
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo  "${{ needs.Version.outputs.next-version }}"
+    with:
+      next-version: 3.0.0
 
   Maven:
     needs: [Version]

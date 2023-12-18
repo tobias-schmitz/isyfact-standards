@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: semantic-version
-        if: "!${{ env.NEXT_VERSION }}"
+        if: ${{ ! inputs.next-version }}
         uses: PaulHatch/semantic-version@v5.3.0
         with:
           version_from_branch: true
@@ -35,4 +35,4 @@ jobs:
         name: Set next version
         run: |
           echo "version=${NEXT_VERSION:-${{ steps.semantic-version.outputs.version }}}-SNAPSHOT" >> "$GITHUB_OUTPUT"
-      - run:  echo "Computed and set ${{ steps.next-version.outputs.version }} as version."
+          echo "Computed and set ${NEXT_VERSION:-${{ steps.semantic-version.outputs.version }}}-SNAPSHOT as version."
