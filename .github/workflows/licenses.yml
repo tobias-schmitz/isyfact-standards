@@ -10,6 +10,7 @@ on:
 jobs:
   ort:
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Use HTTPS instead of SSH for Git cloning
         run: git config --global url.https://github.com/.insteadOf ssh://git@github.com/
@@ -32,6 +33,7 @@ jobs:
 
   rat:
     runs-on: ubuntu-latest
+    if: false
     env:
       MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
     steps:
@@ -133,6 +135,7 @@ jobs:
       - run: licensed status
 
   licenseFinder:
+    if: false
     runs-on: ubuntu-latest
     container:
       image: licensefinder/license_finder
@@ -142,3 +145,12 @@ jobs:
       - run: license_finder --prepare
         shell: bash
 
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v4
+        with:
+          config-file: './.github/dependency-rules.yml'
