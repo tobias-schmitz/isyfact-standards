@@ -22,7 +22,7 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Update dependency graph
-        uses: advanced-security/maven-dependency-submission-action@v3
+        uses: advanced-security/maven-dependency-submission-action@v4
 
   Review:
     runs-on: ubuntu-latest
@@ -30,4 +30,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Review dependencies
-        uses: actions/dependency-review-action@v3
+        uses: actions/dependency-review-action@v4
