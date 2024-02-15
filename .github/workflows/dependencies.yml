@@ -13,3 +13,5 @@ jobs:
         uses: actions/checkout@v4
       - name: Review dependencies
         uses: actions/dependency-review-action@v4
+        with:
+          config-file: 'tobias-schmitz/isyfact-standards/.github/dependency-rules.yml@master'
