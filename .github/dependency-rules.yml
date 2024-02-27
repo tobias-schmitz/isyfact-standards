@@ -1,0 +1,5 @@
+fail_on_severity: 'high'
+allow_licenses:
+  - 'GPL-3.0'
+  - 'BSD-3-Clause'
+  - 'MIT'

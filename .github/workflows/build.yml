@@ -1,0 +1,44 @@
+name: Build Maven
+on:
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'isyfact-standards-doc'
+
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'isyfact-standards-doc'
+
+jobs:
+  Version:
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/next_version.yml@master
+
+  Maven:
+    needs: [Version]
+    permissions:
+      security-events: write
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
+    with:
+      version: ${{ needs.Version.outputs.next-version }}
+      maven-opts: '-s ./.github/settings.xml'
+      sonar-skip: true
+    secrets: inherit
+
+  Snapshot:
+    if: github.event_name == 'push'
+    needs: [Maven]
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_deploy.yml@master
+    with:
+      version: ${{ needs.Version.outputs.next-version }}
+      maven-opts: '-s ./.github/settings.xml '
+      deploy-url-snapshot: https://maven.pkg.github.com/${{ github.repository }}
+      sign: true
+      sbom: true
+    secrets:
+      GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      DEPLOY_SERVER_USER_NAME: ${{ github.actor }}
+      DEPLOY_SERVER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
