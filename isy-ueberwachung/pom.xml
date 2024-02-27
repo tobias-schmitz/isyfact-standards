@@ -14,7 +14,7 @@
     <name>IsyFact-Überwachung</name>
 
     <properties>
-        <mockwebserver.version>4.4.0</mockwebserver.version>
+        <mockwebserver.version>4.11.0</mockwebserver.version>
         <kotlin-stdlib.version>1.6.0</kotlin-stdlib.version>
     </properties>
 
