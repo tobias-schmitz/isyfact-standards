@@ -1,0 +1,157 @@
+name: Check Licenses
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  ort:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - name: Use HTTPS instead of SSH for Git cloning
+        run: git config --global url.https://github.com/.insteadOf ssh://git@github.com/
+      - name: Checkout project
+        uses: actions/checkout@v3
+      - name: Run GitHub Action for ORT
+        uses: oss-review-toolkit/ort-ci-github-action@main
+        with:
+          advisors: 'OSV'
+          report-formats: 'WebApp,PdfTemplate,PlainTextTemplate -O PlainTextTemplate=template.id=NOTICE_SUMMARY'
+          fail-on: 'violations'
+          run: >
+            cache-dependencies,
+            metadata-labels,
+            analyzer,
+            evaluator,
+            advisor,
+            reporter,
+            upload-results
+
+  rat:
+    runs-on: ubuntu-latest
+    if: false
+    env:
+      MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - run: mvn $MAVEN_CLI_OPTS apache-rat:check
+        continue-on-error: true
+      - uses: actions/upload-artifact@v3
+        with:
+          path: '**/rat.txt'
+
+  fossology-license:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v4
+      - run: >
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo
+          -e GITHUB_TOKEN=${{ github.token }}
+          -e GITHUB_PULL_REQUEST=${{ github.event.number }}
+          -e GITHUB_REPOSITORY=${{ github.repository }}
+          -e GITHUB_REPO_URL=${{ github.repositoryUrl }}
+          -e GITHUB_REPO_OWNER=${{ github.repository_owner }}
+          -e GITHUB_API=${{ github.api_url }}
+          -e GITHUB_ACTIONS
+          fossology/fossology:scanner "/bin/fossologyscanner" repo nomos ojo --report TEXT
+
+  fossology-copyright:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v4
+      - run: >
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo
+          -e GITHUB_TOKEN=${{ github.token }}
+          -e GITHUB_PULL_REQUEST=${{ github.event.number }}
+          -e GITHUB_REPOSITORY=${{ github.repository }}
+          -e GITHUB_API=${{ github.api_url }}
+          -e GITHUB_REPO_URL=${{ github.repositoryUrl }}
+          -e GITHUB_REPO_OWNER=${{ github.repository_owner }}
+          -e GITHUB_ACTIONS
+          fossology/fossology:scanner "/bin/fossologyscanner" repo copyright keyword --report TEXT
+
+  scancode:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install ScanCode
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install scancode-toolkit
+      - name: Run ScanCode
+        run: scancode -clpeui -q -n 2 --ignore "*.java" --ignore "**/isyfact-standards-doc/**" --html isyfact-standards.html --json-pp isyfact-standards.json .
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ScanCode Report
+          path: |
+            isyfact-standards.json
+            isyfact-standards.html
+
+  licensed:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v3
+      # install licensed.  licensed v4 can only be installed as a gem and requires
+      # running ruby/setup-ruby before github/setup-licensed.  If a project doesn't
+      # require a specific version of ruby, default to installing latest stable
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby
+      - uses: github/setup-licensed@v1
+        with:
+          version: 4.x
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - run: mvn -Dmaven.repo.local=.m2/repository compile # Install project dependencies here.
+
+      - uses: github/licensed-ci@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: licensed list
+      - run: licensed status
+
+  licenseFinder:
+    if: false
+    runs-on: ubuntu-latest
+    container:
+      image: licensefinder/license_finder
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: license_finder --prepare
+        shell: bash
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v4
+        with:
+          config-file: './.github/dependency-rules.yml'
+

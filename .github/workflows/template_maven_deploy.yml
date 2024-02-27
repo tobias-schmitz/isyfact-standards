@@ -1,0 +1,153 @@
+name: Deploy Maven Template
+on:
+  workflow_call:
+    inputs:
+      jdk-version:
+        description: 'Version of jdk that is used.'
+        required: false
+        type: number
+        default: 17
+      version:
+        description: 'Version used for maven CI friendly versions'
+        required: true
+        type: string
+      maven-opts:
+        description: 'Additional arguments passed to maven'
+        required: false
+        type: string
+        default: ''
+      checkout-lfs:
+        description: 'Checkout files from Git LFS'
+        required: false
+        type: boolean
+        default: false
+      deploy-server-id:
+        required: false
+        type: string
+        description: 'Reference to repository that is used for deployment'
+        default: 'repository'
+      deploy-url-release:
+        required: false
+        type: string
+        description: 'URL to deploy releases to'
+      deploy-url-snapshot:
+        required: false
+        type: string
+        description: 'URL to deploy snapshots to'
+      sbom:
+        description: 'Create SBOM with cycloneDx format'
+        required: false
+        type: boolean
+        default: false
+      sign:
+        description: 'Sign all build artifacts with gpg'
+        required: false
+        type: boolean
+        default: false
+      environment:
+        description: 'Github environment with secrets and variables'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      GPG_PRIVATE_KEY:
+        required: false
+        description: 'Private GPG key to sign artifacts with'
+      GPG_PASSPHRASE:
+        required: false
+        description: 'Passphrase for private gpg key'
+      DEPLOY_SERVER_USER_NAME:
+        required: false
+        description: 'User name for maven central for deployment'
+      DEPLOY_SERVER_TOKEN:
+        required: false
+        description: 'Token for maven central deployment'
+      GH_PACKAGE_TOKEN:
+        description: 'Token for github packages'
+        required: false
+
+env:
+  MAVEN_CLI_OPTS: '--batch-mode --errors --fail-at-end -T 1C'
+  PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+
+jobs:
+  Validate:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Validate tagged version
+        if: github.ref_type == 'tag'
+        run: |
+          RE_SEMVER="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$"
+
+          if [[ ! "${{ inputs.version }}" =~ $RE_SEMVER ]]; then
+            echo "ERROR tag with value ${{ inputs.version }} is an invalid release or semantic version"
+            echo "Release requires a tag containing a valid SemVer 2.0.0 without pre-release version"
+            exit 1
+          fi
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          lfs: ${{ inputs.checkout-lfs }}
+      - name: Set up JDK ${{ inputs.jdk-version }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ inputs.jdk-version }}
+          distribution: temurin
+      - name: Get build version
+        id: getVersion
+        run:  |
+          PROJECT_VERSION=$(mvn -Dexpression=project.version -q -DforceStdout -Drevision=${{ inputs.version }} help:evaluate)
+          echo "Project version is $PROJECT_VERSION"
+          echo "project-version=$PROJECT_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Validate tag and build versions
+        if: github.ref_type == 'tag'
+        run: |
+          if [ ! "${{ steps.getVersion.outputs.project-version }}" = "${{ inputs.version }}" ]; then
+            echo "ERROR: given version with value ${{ inputs.version }} does not correspond to build version $PROJECT_VERSION"
+            exit 1
+          fi
+      - name: Check for snapshot version
+        if: github.ref_type != 'tag'
+        run: |
+          if [ ! "${{ steps.getVersion.outputs.project-version }}" =~ "-SNAPSHOT"]; then
+            echo "ERROR: Trying to deploy untagged version as stable release"
+            exit 1
+          fi
+
+  Deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    needs: [Validate]
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          lfs: ${{ inputs.checkout-lfs }}
+      - name: Set up JDK ${{ inputs.jdk-version }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ inputs.jdk-version }}
+          distribution: temurin
+          # arguments for generated settings.xml
+          # see https://github.com/actions/setup-java/blob/v3.11.0/docs/advanced-usage.md#publishing-using-apache-maven
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} # Value of the GPG private key to import
+          gpg-passphrase: GPG_PASSPHRASE # env variable for GPG private key passphrase
+          server-id: ${{ inputs.deploy-server-id }} # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: DEPLOY_SERVER_USERNAME # env variable for username in deploy
+          server-password: DEPLOY_SERVER_TOKEN # env variable for token in deploy
+      - name: Setup variables
+        run: |
+          echo "CYCLONEDX_SBOM_OPTS=$([ ${{ inputs.sbom }} == "true" ] && echo "cyclonedx:makeBom" || echo "")" >> $GITHUB_ENV
+          echo "GPG_SIGN_OPTS=$([ ${{ inputs.sign }} == "true" ] && echo "-P GPGsigning" || echo "")" >> $GITHUB_ENV
+      - name: SBOM, Sign & Deploy
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          DEPLOY_SERVER_USERNAME: ${{ secrets.DEPLOY_SERVER_USER_NAME }}
+          DEPLOY_SERVER_TOKEN: ${{ secrets.DEPLOY_SERVER_TOKEN }}
+          DEPLOY_SERVER_ID: ${{ inputs.deploy-server-id }}
+          DEPLOYURL_RELEASE: ${{ inputs.deploy-url-release }}
+          DEPLOYURL_SNAPSHOT: ${{ inputs.deploy-url-snapshot }}
+        run: >
+          mvn -DskipTests -Dspotbugs.skip -Dcheckstyle.skip  -DdeployAtEnd -Drevision=${{ inputs.version }}
+          $MAVEN_CLI_OPTS ${{ inputs.maven-opts }} $GPG_SIGN_OPTS $CYCLONEDX_SBOM_OPTS deploy

@@ -1,0 +1,42 @@
+name: Validate Commits
+
+on:
+  pull_request:
+    branches:
+      - master
+      - 'release/*'
+    types: [opened, edited, reopened, synchronize]
+  push:
+    branches:
+      - master
+      - 'release/*'
+
+jobs:
+  CheckCommits1:
+    name: GS Commit Message Checker
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check Commits
+        uses: gsactions/commit-message-checker@v2
+        with:
+          pattern: '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\([\w\-\.]+\))?(!)?: ([\w ])+([\s\S]*)|(Merge).*|(fixup!.*)'
+          error: 'The pull requests contains some commits that do not follow conventional commits https://www.conventionalcommits.org/en/v1.0.0/'
+          excludeTitle: 'true'
+          excludeDescription: 'true'
+          checkAllCommitMessages: 'true'
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
+
+  CheckCommits2:
+    name: Commit Check Action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: commit-check/commit-check-action@v1
+        with:
+          message: true
+          branch: true
+          author-name: true
+          author-email: true
+          job-summary: true
