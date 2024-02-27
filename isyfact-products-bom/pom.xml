@@ -27,7 +27,7 @@
         <javax.el-api.version>3.0.0</javax.el-api.version>
         <webservices-rt.version>2.0.1</webservices-rt.version>
         <webservices-api.version>2.0.1</webservices-api.version>
-        <logback-classic.version>1.2.8</logback-classic.version>
+        <logback-classic.version>1.2.13</logback-classic.version>
         <logback-core.version>1.2.13</logback-core.version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
