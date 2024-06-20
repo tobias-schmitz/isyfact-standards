@@ -1,5 +1,6 @@
 == Neuerungen in isy-persistence 2.0 / Datenzugriff
 
+
 === 5.5.1 Persistierung mit JPA
 * `isy-persistence` 2.0 setzt Hibernate 5.3 ein, welches JPA 2.2. implementiert. Die `AttributeConverter` für die Klassen der Java 8 Date and Time API entfallen.
 
