@@ -7,9 +7,6 @@ on:
       - 'release/*'
     types: [opened, edited, reopened, synchronize]
   push:
-    branches:
-      - master
-      - 'release/*'
 
 jobs:
   CheckCommits1:
@@ -40,3 +37,6 @@ jobs:
           author-name: true
           author-email: true
           job-summary: true
+
+
+#test test2 test3
