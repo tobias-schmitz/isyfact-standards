@@ -1,0 +1,47 @@
+name: Snyk Dependency Scan
+on:
+#  push:
+#    branches:
+#     - master
+#     - 'release/**'
+  pull_request:
+    branches:
+      - master
+      - 'release/**'
+
+jobs:
+  Scan:
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+
+      - name: Run Snyk to monitor for vulnerabilities
+        if: github.event_name == 'push'
+        run: snyk monitor --maven-aggregate-project --target-reference=$GITHUB_REF --org=641ce6a1-f163-4237-93e3-e187464c5d18
+
+      - name: Run Snyk to test for vulnerabilities
+        if: github.event_name == 'push'
+        run: snyk test --maven-aggregate-project
+
+      - name: Setup Node.js
+        if: github.event_name == 'pull_request'
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.4
+      - name: Installing snyk-delta and dependencies
+        if: github.event_name == 'pull_request'
+        run: npm i -g snyk-delta
+      - name: Run Snyk to test for vulnerabilities (PR)
+        if: github.event_name == 'pull_request'
+        run: snyk test --json --print-deps -d | snyk-delta -d

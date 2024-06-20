@@ -1,0 +1,36 @@
+name: Snyk Dependency Scan
+on:
+  workflow_call:
+    inputs:
+      jdk-version:
+        description: 'Version of jdk that is used.'
+        required: false
+        type: number
+        default: 17
+    secrets:
+      SNYK_TOKEN:
+        required: true
+        description: 'Token to authenticate Snyk CLI'
+
+jobs:
+  Monitor:
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: temurin
+          cache: maven
+
+      - name: Run Snyk to monitor for vulnerabilities
+        run: snyk monitor --maven-aggregate-project --target-reference=$GITHUB_REF --org=641ce6a1-f163-4237-93e3-e187464c5d18
+
+      - name: Run Snyk to test for vulnerabilities
+        run: snyk monitor --maven-aggregate-project --target-reference=$GITHUB_REF --org=641ce6a1-f163-4237-93e3-e187464c5d18
