@@ -27,6 +27,11 @@ on:
         required: false
         type: boolean
         default: false
+      environment:
+        description: 'GitHub Actions Environment'
+        required: false
+        type: string
+        default: ''
     secrets:
       SONAR_TOKEN:
         description: 'Token to publish analysis result on sonar'
@@ -42,6 +47,7 @@ env:
 jobs:
   Compile:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -58,6 +64,7 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     needs: [Compile]
     steps:
       - name: Checkout project
@@ -97,6 +104,7 @@ jobs:
 
   SonarScan:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     # run also, if test or code quality jobs fail; skip dependabot pr as dependabot has separate secrets
     if: vars.SONAR_PROJECT_KEY && !cancelled() && github.actor != 'dependabot[bot]' && !inputs.sonar-skip
     needs: [Test]

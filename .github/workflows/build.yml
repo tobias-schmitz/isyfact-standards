@@ -20,7 +20,7 @@ jobs:
     needs: [Version]
     permissions:
       security-events: write
-    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@master
+    uses: tobias-schmitz/isyfact-standards/.github/workflows/template_maven_build.yml@feature/test-gh-actions-environment
     with:
       version: ${{ needs.Version.outputs.next-version }}
       maven-opts: '-s ./.github/settings.xml'
